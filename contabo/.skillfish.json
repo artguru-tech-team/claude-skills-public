@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "contabo",
+  "owner": "evolv3-ai",
+  "repo": "vibe-skills",
+  "path": "plugins/admin-devops/skills/contabo",
+  "branch": "main",
+  "sha": "16c4f76c753a44578ff54f14a734af2eb0d2aff8",
+  "source": "manual"
+}
