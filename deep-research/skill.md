@@ -48,7 +48,8 @@ Launch **three parallel tracks** to maximize source diversity:
 Use `/yt-search` to find relevant videos:
 
 ```bash
-PYTHONIOENCODING=utf-8 python -m yt_dlp "ytsearch10:<TOPIC>" --flat-playlist -j 2>/dev/null
+PYTHONIOENCODING=utf-8 python3 -m yt_dlp "ytsearch10:<TOPIC>" --flat-playlist -j 2>/dev/null
+# (use `python` instead of `python3` on systems without python3 on PATH)
 ```
 
 - Pick top 5-10 by view count and relevance
