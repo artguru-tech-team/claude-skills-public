@@ -339,6 +339,114 @@ npx remotion render src/index.ts SocialReel out/[brand]-reel-hq.mp4 --crf=15
 
 ---
 
+## Beat Sync — Musique réactive
+
+### Formule BPM → frames
+```typescript
+const BPM = 120;  // adapter à ta track
+const FPS = 30;
+const FRAMES_PER_BEAT = (FPS * 60) / BPM; // 15 frames à 120 BPM
+
+// Array de markers de beats sur toute la durée
+const BEAT_MARKERS = Array.from(
+  { length: Math.floor(300 / FRAMES_PER_BEAT) },
+  (_, i) => Math.round(i * FRAMES_PER_BEAT)
+);
+```
+
+### Composant beat-reactive
+```typescript
+const lastBeatFrame = BEAT_MARKERS.filter(b => b <= frame).at(-1) ?? 0;
+const framesSinceBeat = frame - lastBeatFrame;
+
+// Pulse qui rebondit sur chaque beat
+const beatScale = spring({
+  frame: framesSinceBeat,
+  fps,
+  config: { damping: 12, stiffness: 180, mass: 0.5 },
+  from: 1.15,
+  to: 1,
+});
+```
+
+### Volume dynamique (fade-in/out sans éditeur audio)
+```typescript
+<Audio
+  src={staticFile('audio/track.mp3')}
+  volume={(f) =>
+    interpolate(f,
+      [0, 15, 275, 300],      // frames
+      [0, 0.12, 0.12, 0],     // volumes (fade in 0.5s, hold, fade out 0.5s)
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    )
+  }
+/>
+```
+
+### SFX sur transitions
+```typescript
+{/* Whoosh sur chaque changement de scène */}
+<Sequence from={90} durationInFrames={5}>
+  <Audio src={staticFile('audio/whoosh.mp3')} volume={0.6} />
+</Sequence>
+
+{/* Impact hit sur le beat d'intro */}
+<Sequence from={0} durationInFrames={10}>
+  <Audio src={staticFile('audio/impact-hit.mp3')} volume={0.8} />
+</Sequence>
+```
+
+---
+
+## Sources musicales royalty-free 2026
+
+| Source | Spécialité | Prix |
+|--------|-----------|------|
+| **Artlist** | Bibliothèque premium, industry standard | ~$200/an |
+| **Epidemic Sound** | Énorme catalogue, parfait Reels/TikTok | ~$15/mois |
+| **Happy Editing** | Packs SFX transition (whoosh, riser, glitch) | À l'unité |
+| **Pixabay Music** | Royalty-free gratuit | Gratuit |
+| **YouTube Audio Library** | Safe pour YouTube | Gratuit |
+| **Suno / Udio (AI)** | Génère tracks custom au BPM exact demandé | Freemium |
+
+**BPM recommandés par brand :**
+- Bakchich (énergie, orange) : 120-140 BPM — phonk, trap instrumental, boom bap
+- Clip2Earn (tech, cyan) : 100-120 BPM — lo-fi electronic, synth pop
+- Brand premium/minimaliste : 80-100 BPM — cinematic, ambient
+
+---
+
+## Techniques de cut qui génèrent de l'engagement
+
+| Technique | Usage | Timing |
+|-----------|-------|--------|
+| **Smash Cut** | Coupe brutale + musique qui s'arrête simultanément | Reset attention toutes les 20-40s |
+| **Jump Cut sur beat** | Saute dans le temps, aligné exactement sur le beat | ±1 frame du BEAT_MARKER |
+| **Flow Cut** | Transition dans le sens du mouvement du sujet | 8-12 frames |
+| **Match Cut** | Aligne formes similaires entre 2 scènes | 0.3-0.5s max |
+| **Stagger texte** | Éléments décalés de 8-10 frames entre eux | Hold min 60 frames (2s) par item |
+
+**Rehook obligatoire** : nouveau twist ou changement de pattern visuel toutes les 20-40s sinon le viewer part.
+
+---
+
+## Timing par plateforme
+
+| Plateforme | Durée optimale | Esthétique | Safe zone |
+|------------|---------------|------------|-----------|
+| **Instagram Reels** | 12-20s | Design policé, transitions considérées | Centre 80%, rogné 4:5 sur feed |
+| **YouTube Shorts** | 8-15s | Vitesse extrême, aucun lag | Éviter bord droit + tiers bas |
+| **TikTok** | 12-20s | Raw, natif, captions kinétiques | Boutons UI masquent les bords |
+
+**Timings critiques :**
+- **0-3s** : Hook full-screen, 5-8 mots max → +50% rétention à 3s
+- **Transitions** : 0.3-0.5s max — plus lent = amateurisme
+- **Hold minimum** : 60 frames (2s) par item de liste
+- **Loop de fin** : dernier frame = premier frame → double le watch time (auto-replay comptabilisé)
+- **85% des vues sont sans son** → le rythme visuel doit fonctionner muet
+
+---
+
 ## Règles visuelles (depuis `.claude/rules/content-design.md`)
 
 - **SafeZone 64px obligatoire** sur tous les côtés — les UI TikTok/Reels masquent les bords
